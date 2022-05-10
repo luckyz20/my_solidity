@@ -3,7 +3,7 @@
 pragma solidity ^0.8.7;
 
 /*
-    @desc 众筹智能合约
+    @desc 众筹智能合约 合约地址:0x7ec772afc881AF5b099d7f38eC7217c0a154Bd19
     @creator zhao
     @date 2022
  */
