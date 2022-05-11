@@ -3,8 +3,8 @@
 pragma solidity ^0.8.7;
 
 /*
-    @desc 众筹智能合约 合约地址:0xc88d3E8F4ABf77652eb9c5a3225528D3669A1FAf
-    @url https://rinkeby.etherscan.io/address/0xc88d3E8F4ABf77652eb9c5a3225528D3669A1FAf
+    @desc 众筹智能合约 合约地址:0xe048d7Db102537272E31B8E9AB3474b476FEE729
+    @url https://rinkeby.etherscan.io/address/0xe048d7Db102537272E31B8E9AB3474b476FEE729
     @creator zhao
     @date 2022
  */
@@ -68,12 +68,16 @@ contract Donate {
         Donee storage donee = doneeMap[doneeID];
         require(donee.status);
 
-        donee.donorCount++;
+        if(!donee.donorMap[msg.sender].used){ //是否是新出资人
+            donee.donorCount++;
+        }
+        
         donee.amount += msg.value; //出资人金额
 
-        Donor storage donor = donee.donorMap[donee.donorCount];
+        Donor storage donor = donee.donorMap[msg.sender];
         donor.addr = msg.sender;
         donor.amount = msg.value;
+        donor.used = true;
 
         //达成捐赠目标触发筹资事件
         if(donee.amount >= donee.goal) {
@@ -134,7 +138,7 @@ struct Donee {
     uint amount; //已筹集金额
     uint donorCount; //捐赠人数
     bool status; //true 有效 false 无效
-    mapping(uint => Donor) donorMap; //捐赠人字典
+    mapping(address => Donor) donorMap; //捐赠人字典
 
 }
 
@@ -144,4 +148,5 @@ struct Donee {
  struct Donor {
      address addr; //出资人地址
      uint amount; //出资人金额
+     bool used; //是否被用
  }
