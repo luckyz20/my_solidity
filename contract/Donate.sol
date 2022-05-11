@@ -3,8 +3,8 @@
 pragma solidity ^0.8.7;
 
 /*
-    @desc 众筹智能合约 合约地址:0x7ec772afc881AF5b099d7f38eC7217c0a154Bd19
-    @url https://rinkeby.etherscan.io/address/0x7ec772afc881AF5b099d7f38eC7217c0a154Bd19
+    @desc 众筹智能合约 合约地址:0xc88d3E8F4ABf77652eb9c5a3225528D3669A1FAf
+    @url https://rinkeby.etherscan.io/address/0xc88d3E8F4ABf77652eb9c5a3225528D3669A1FAf
     @creator zhao
     @date 2022
  */
@@ -37,6 +37,15 @@ contract Donate {
         _;
     }
 
+    //筹资事件
+    event DoneeEvent (
+        address addr,
+        uint goal,
+        uint amount,
+        uint donorCount,
+        bool status
+    );
+
     //1 设置筹资人和筹资金额
     function setDonee(address addr,uint goal) public onlyOwner {
         for (uint256 i = 0; i < doneeCount; i++) {
@@ -66,10 +75,15 @@ contract Donate {
         donor.addr = msg.sender;
         donor.amount = msg.value;
 
+        //达成捐赠目标触发筹资事件
+        if(donee.amount >= donee.goal) {
+            emit DoneeEvent(donee.addr, donee.goal, donee.amount, donee.donorCount, donee.status);
+        }
+
     }
 
     //3 完成筹集目标后转账给筹资人
-    function transfer(uint doneeID) public payable onlyOwner validDonee(doneeID) {
+    function transfer(uint doneeID) public onlyOwner validDonee(doneeID) {
         Donee storage donee = doneeMap[doneeID];
         if(donee.amount >= donee.goal){
             //已完成，可以转账
@@ -81,7 +95,7 @@ contract Donate {
     }
 
     //4 将合约账户中的资金提取到拥有者账户
-    function withdraw() public payable onlyOwner {
+    function withdraw() public onlyOwner {
         payable(msg.sender).transfer(address(this).balance);
     }
 
